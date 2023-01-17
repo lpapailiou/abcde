@@ -73,8 +73,8 @@ def prepare_inputs(args, batch, speaker_turn=False):
         candidates = batch[11]
 
         if args.cascade:
-            targets.append(batch[15])   # convo_ids
-            targets.append(batch[16])   # turn_counts
+            targets.append(batch[12])   # convo_ids
+            targets.append(batch[13])   # turn_counts
         if args.use_intent:
           tools = candidates, device, batch[6]
         else:

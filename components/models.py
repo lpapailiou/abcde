@@ -15,16 +15,25 @@ from transformers.file_utils import WEIGHTS_NAME
 class CoreModel(nn.Module):
   def __init__(self, args, checkpoint_dir):
     super().__init__()
+    print(args.model_type)
+    self.outputs = ['intent', 'nextstep', 'action', 'value', 'utt']
+    self.checkpoint_dir = checkpoint_dir
+    self.use_intent = args.use_intent
+    dir = os.listdir(checkpoint_dir)
+    print(self.checkpoint_dir)
+    print('download model')
     if args.model_type == 'bert':
       self.encoder = BertModel.from_pretrained('bert-base-uncased')
     elif args.model_type == 'roberta':
       self.encoder = RobertaModel.from_pretrained('roberta-base')
     elif args.model_type == 'albert':
       self.encoder = AlbertModel.from_pretrained('albert-base-v2')
-
-    self.outputs = ['intent', 'nextstep', 'action', 'value', 'utt']
-    self.checkpoint_dir = checkpoint_dir
-    self.use_intent = args.use_intent
+    #if (len(dir) != 0):
+        #print('overload model from checkpoint')
+        #filepath = os.path.join(checkpoint_dir, 'pytorch_model.pt')
+        #self.encoder.load_state_dict(torch.load(filepath), strict=False)
+        #self.encoder.eval()
+    print('initialization done')
 
   def forward(self):
     raise NotImplementedError
@@ -32,18 +41,21 @@ class CoreModel(nn.Module):
   def save_pretrained(self, filepath=None):
     if filepath is None:
       filepath = os.path.join(self.checkpoint_dir, 'pytorch_model.pt')
-    torch.save(self.state_dict(), filepath)
+    #torch.save(self.state_dict(), filepath)
+    torch.save(self.encoder, filepath)
     print(f"Model weights saved in {filepath}")
 
   @classmethod
   def from_pretrained(cls, hidden_dim, ontology_size, base_model, device, filepath=None):
     # Instantiate model.
+    print('load model')
     model = cls(hidden_dim, ontology_size, base_model, device)
     # Load weights and fill them inside the model
-    if filepath is None:
-      filepath = os.path.join(self.checkpoint_dir, 'pytorch_model.pt')
+    filepath = os.path.join(self.checkpoint_dir, 'pytorch_model.pt')
+    print('filepath: ' + filepath)
     model.load_state_dict(torch.load(filepath))
     model.eval()
+    print('model loaded')
     print(f"Model loaded from {filepath}")
     return model
 

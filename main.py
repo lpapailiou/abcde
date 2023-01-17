@@ -24,6 +24,11 @@ def run_main(args, datasets, model, exp_logger):
     kb_labels['action'] = list(model.mappings['action'].keys())
 
   exp_logger.init_tb_writers()
+  checkpoint_folder = f'{args.prefix}_{args.filename}_{args.model_type}_{args.suffix}'
+  ckpt_dir = os.path.join(args.output_dir, args.task, checkpoint_folder)
+  filepath = os.path.join(ckpt_dir, 'pytorch_model.pt')
+  #print('loading model from checkpoint...')
+  #model.encoder.load_state_dict(torch.load(filepath), strict=False)
   run_train(args, datasets, model, exp_logger, kb_labels)
 
   if args.do_eval:
@@ -43,7 +48,7 @@ def ast_loss(scores, targets, loss_func):
 
 def cds_loss(scores, targets, loss_func):
   intent_scores, nextstep_scores, action_scores, value_scores, utt_scores = scores
-  intent_target, nextstep_target, action_target, value_target, utt_target = targets
+  intent_target, nextstep_target, action_target, value_target, utt_target, _, __ = targets
   
   utterance_mask = nextstep_target == 0  # 0 is the index of 'retrieve_utterance'
   batch_size, num_candidates = utt_scores.shape
@@ -108,10 +113,12 @@ def run_train(args, datasets, model, exp_logger, kb_labels):
         break
 
     result, res_name = run_eval(args, datasets, model, exp_logger, kb_labels, split='dev')
+    results = dict((k + f'_{args.filename}', v) for k, v in result.items())
+    print('Test Results -', results)
     dev_score = result[res_name]
     if dev_score > exp_logger.best_score:
-        model.save_pretrained(exp_logger.filepath) 
         exp_logger.best_score = dev_score
+    model.save_pretrained(exp_logger.filepath) 
     exp_logger.log_dev(step+1, res_name, dev_score)
 
 def run_eval(args, datasets, model, exp_logger, kb_labels, split='dev'):
@@ -180,4 +187,12 @@ if __name__ == "__main__":
 
   model = model.to(device)
   model.encoder.resize_token_embeddings(len(tokenizer))
+  
+  dir = os.listdir(ckpt_dir)
+  if (len(dir) != 0):
+      print('loading whole model from checkpoint:')
+      print('overload model from checkpoint')
+      filepath = os.path.join(ckpt_dir, 'pytorch_model.pt')
+      model.encoder = torch.load(filepath)
+      model.encoder.eval()
   run_main(args, datasets, model, exp_logger)

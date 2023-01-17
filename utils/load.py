@@ -8,6 +8,7 @@ import numpy as np
 
 from transformers import BertTokenizer, RobertaTokenizer, AlbertTokenizer
 from components.tools import RAdam, AdamW, get_linear_schedule_with_warmup
+from .abcdepreprocessing import preprocess_dialog_data
     
 def load_data(args, already_cached):
   if already_cached:
@@ -15,6 +16,7 @@ def load_data(args, already_cached):
   else:
     data_path = os.path.join(args.input_dir, f"abcd_v{args.version}.json")
     raw_data = json.load(open(data_path, 'r'))
+    raw_data = preprocess_dialog_data(args, raw_data)
     return raw_data
 
 def load_guidelines():

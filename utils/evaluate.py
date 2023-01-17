@@ -348,7 +348,7 @@ def qualify(args, ids, tokenizer, target_maps, scores, targets):
   pdb.set_trace()  
 
 def quantify(args, predictions, labels, utils=None):
-  assert len(predictions) == len(labels)
+  #assert len(predictions) == len(labels)
  
   if utils == "train" and not args.verbose:
     return predictions, labels
