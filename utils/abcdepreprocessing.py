@@ -124,7 +124,7 @@ def remove_sentiment(text):
     merged = merge_dict(sentiments, src)
     out = []
     out.append(min(merged, key=lambda x:x['score'])["text"])
-    sentiment_segment_removed = segments - len(out)
+    sentiment_segment_removed += segments - len(out)
     return ' '.join(out)
 
 # ============== pipeline ============== #
