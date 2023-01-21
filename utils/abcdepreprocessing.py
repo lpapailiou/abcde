@@ -124,7 +124,7 @@ def remove_sentiment(text):
     merged = merge_dict(sentiments, src)
     out = []
     out.append(min(merged, key=lambda x:x['score'])["text"])
-    sentiment_segment_removed += segments - len(out)
+    sentiment_segment_removed = segments - len(out)
     return ' '.join(out)
 
 # ============== pipeline ============== #
@@ -163,8 +163,8 @@ def execute_pipeline(args, datasets):
                         if (delexed_data[j]['text'] != delexed_res[j]):
                             altered_line_count += 1
                             delexed_data[j]['text'] = delexed_res[j]  
-                        else:
-                            error_count += 1
+                else:
+                    error_count += 1
 						
             for j in range(0,len(delexed_data)):
                 # sentiment parsing
@@ -177,10 +177,7 @@ def execute_pipeline(args, datasets):
     print(str(error_count) + ' of ' + str(dialog_count) + ' dialogs not processed in coref parsing')
     print(str(altered_line_count) + ' of ' + str(line_count) + ' lines altered in coref parsing')
     print(str(sentiment_segment_removed) +' of ' + str(sentiment_segment_total) + ' segments removed in sentiment parsing')
-    print("---preprocessing terminated, took %s seconds ---" % (time.time() - start_time))
-    
-    # save file
-    
+    print("---preprocessing terminated, took %s seconds ---" % (time.time() - start_time))    
     return datasets
 
 def preprocess_dialog_data(args, datasets):
