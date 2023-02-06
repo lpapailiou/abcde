@@ -10,7 +10,7 @@ preprocessing pipeline, including following methods:
 - lemmatization
 
 ## Usage
-TODO
+To run the code, you may use the Google Colab Notebook [abcde.ipynb](abcde.ipynb).
 
 ## Results
-TODO
+The python script [abcde_results.py](abcde_results.py) documents the results and provides different methods to plot the results accordingly.
